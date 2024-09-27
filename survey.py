@@ -109,8 +109,9 @@ class SurveyApp(QWidget):
 
                 border: none;
                 padding: 15px 20px;
-                font-size: 14px;
+                font-size: 24px;
                 border-radius: 10px;
+                font-weight: bold;
                 margin: 5px 0;
             }
             QPushButton:hover {
@@ -256,7 +257,7 @@ class SurveyApp(QWidget):
         self.player.stop()
         my_dorm = self.determine_house()
         print(f"Your house: {my_dorm}")
-        # self.printer.printFile(self.printer.pnglist[my_dorm])
+        self.printer.printFile(self.printer.pnglist[my_dorm])
         self.voice_player.stop()
         self.voice_player.setMedia(QMediaContent(QUrl.fromLocalFile(self.voices[0])))  # 시작 음성으로 이동
         self.voice_player.play()
