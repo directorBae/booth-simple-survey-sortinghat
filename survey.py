@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QStackedWidget, QMessageBox
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPixmap, QPalette, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
@@ -70,41 +70,43 @@ class PrintFile():
 class SurveyApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.printer = PrintFile()
-
-        self.setWindowTitle('Sorting Hat: Survey')
-        self.setGeometry(100, 100, 500, 350)
+        self.printer = PrintFile()  # 프린트 관련 클래스 (구현되어 있다고 가정)
+        self.showFullScreen()
 
         # QMediaPlayer 설정 (음악 재생)
         self.player = QMediaPlayer()
-        media_url = QUrl.fromLocalFile("HedwigsTheme.mp3")  # 여기서 mp3 파일 경로를 지정하세요.
+        media_url = QUrl.fromLocalFile("HedwigsTheme.mp3")  # 음악 파일 경로
         self.player.setMedia(QMediaContent(media_url))
         self.player.setVolume(70)  # 볼륨 설정
 
-        self.voices=["voice/intro.wav", "voice/q1.wav", "voice/q2.wav", "voice/q3.wav", "voice/q4.wav", "voice/그리핀도르.wav", "voice/후플푸프.wav", "voice/래번클로.wav", "voice/슬리데린.wav"]
-        # QMediaPlayer 설정 (음성 재생)
+        # 음성 재생 파일 설정
+        self.voices = ["voice/intro.wav", "voice/q1.wav", "voice/q2.wav", "voice/q3.wav", "voice/q4.wav", "voice/그리핀도르.wav", "voice/후플푸프.wav", "voice/래번클로.wav", "voice/슬리데린.wav"]
         self.voice_player = QMediaPlayer()
-        self.voice_player.setVolume(100)  # 볼륨 설정
-        media_url = QUrl.fromLocalFile(self.voices[0])  # 여기서 mp3 파일 경로를 지정하세요.
+        self.voice_player.setVolume(100)
+        media_url = QUrl.fromLocalFile(self.voices[0])
         self.voice_player.setMedia(QMediaContent(media_url))
 
         # 폰트 설정
-        self.setFont(QFont('Arial', 12))
+        self.setFont(QFont('Pretendard', 12))
 
-        # 배경 색상 및 스타일 설정
+        # 배경 이미지 설정
+        self.set_background_image("main.png")  # main.png 이미지를 배경으로 설정
+
+        # QLabel 및 QPushButton 스타일 설정
         self.setStyleSheet("""
-            QWidget {
-                background-color: #f0f0f0;
-            }
             QLabel {
-                font-size: 18px;
+                font-family: Pretendard;
+                font-size: 36px;
                 font-weight: bold;
-                color: #333333;
+                color: #FFFFFF;
                 margin-bottom: 20px;
-            }
+            }       
             QPushButton {
-                background-color: #4CAF50;
-                color: white;
+                font-family: Pretendard;
+                background-color: #FFFFFF50;
+                color: black;
+                width: 300px;
+
                 border: none;
                 padding: 15px 20px;
                 font-size: 14px;
@@ -112,12 +114,8 @@ class SurveyApp(QWidget):
                 margin: 5px 0;
             }
             QPushButton:hover {
-                background-color: #45a049;
+                color: #fff200;
             }
-            QMessageBox {
-                font-size: 16px;
-            }
-                           
         """)
 
         self.questions = [
@@ -155,13 +153,27 @@ class SurveyApp(QWidget):
         main_layout.addWidget(self.stacked_widget)
         self.setLayout(main_layout)
 
+    def set_background_image(self, image_path):
+        """배경 이미지를 창 크기에 맞게 설정하는 메서드"""
+        palette = QPalette()
+
+        # QPixmap으로 이미지를 로드한 후 창 크기에 맞춰 스케일 조정
+        pixmap = QPixmap(image_path)
+
+        # 창 크기에 맞춰 이미지 크기 조정
+        scaled_pixmap = pixmap.scaled(self.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+
+        # QPalette에 이미지를 설정
+        palette.setBrush(QPalette.Background, QBrush(scaled_pixmap))
+        self.setPalette(palette)
+
     def create_start_page(self):
         """Create a start page with a start button."""
         page = QWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(40, 40, 40, 40)
 
-        welcome_label = QLabel("해리 포터와 마법사의 못: 솔팅햇")
+        welcome_label = QLabel("해리 포터와 마법사의 못")
         welcome_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(welcome_label)
 
@@ -204,7 +216,6 @@ class SurveyApp(QWidget):
         return page
 
     def handle_button_click(self, question_index, option_index):
-        print(1)
         """Store the selected answer for the given question and move to the next page."""
         def callback():
             self.responses[question_index] = option_index
